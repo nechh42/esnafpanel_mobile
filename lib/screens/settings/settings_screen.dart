@@ -6,31 +6,40 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ayarlar'), centerTitle: true),
+      appBar: AppBar(title: const Text("Ayarlar")),
       body: ListView(
-        children: const [
+        children: [
           ListTile(
-            leading: Icon(Icons.account_circle),
-            title: Text('Profil Bilgileri'),
-            trailing: Icon(Icons.chevron_right),
+            leading: const Icon(Icons.language),
+            title: const Text("Dil Seçimi"),
+            subtitle: const Text("Türkçe"),
+            onTap: () {
+              // Dil ayarı ekranına yönlendirme yapılabilir
+            },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.lock),
-            title: Text('Gizlilik ve Güvenlik'),
-            trailing: Icon(Icons.chevron_right),
+            leading: const Icon(Icons.brightness_6),
+            title: const Text("Tema"),
+            subtitle: const Text("Sistem Varsayılanı"),
+            onTap: () {
+              // Tema değiştirme işlemi yapılabilir
+            },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.palette),
-            title: Text('Tema Ayarları'),
-            trailing: Icon(Icons.chevron_right),
+            leading: const Icon(Icons.support_agent),
+            title: const Text("Destek"),
+            subtitle: const Text("Bize ulaşın"),
+            onTap: () {
+              // Destek ekranına yönlendirme yapılabilir
+            },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.logout),
-            title: Text('Çıkış Yap'),
-            trailing: Icon(Icons.chevron_right),
+            leading: const Icon(Icons.info_outline),
+            title: const Text("Sürüm"),
+            subtitle: const Text("v1.0.0"),
           ),
         ],
       ),

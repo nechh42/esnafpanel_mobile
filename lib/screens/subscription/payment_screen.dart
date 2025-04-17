@@ -1,46 +1,64 @@
 import 'package:flutter/material.dart';
 
-class PaymentScreen extends StatelessWidget {
-  final String selectedPlan;
+class PaymentScreen extends StatefulWidget {
+  const PaymentScreen({super.key});
 
-  const PaymentScreen({super.key, required this.selectedPlan});
+  @override
+  State<PaymentScreen> createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  final TextEditingController _cardNumberController = TextEditingController();
+  final TextEditingController _expiryController = TextEditingController();
+  final TextEditingController _cvvController = TextEditingController();
+
+  bool isProcessing = false;
+
+  void _processPayment() async {
+    setState(() => isProcessing = true);
+
+    // Burada gerçek ödeme entegrasyonu yapılabilir
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() => isProcessing = false);
+    Navigator.pushReplacementNamed(context, '/main_panel');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ödeme')),
+      appBar: AppBar(title: const Text("Ödeme")),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Seçilen Plan: $selectedPlan',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            TextField(
+              controller: _cardNumberController,
+              decoration: const InputDecoration(labelText: "Kart Numarası"),
+              keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 30),
-            const Text(
-              'Ödeme yöntemi: Sadece kredi kartı (simülasyon)',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 40),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // Normalde burada ödeme işlemi yapılır
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Ödeme başarılı!')),
-                  );
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/main',
-                    (route) => false,
-                  );
-                },
-                icon: const Icon(Icons.credit_card),
-                label: const Text('Ödemeyi Tamamla'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _expiryController,
+              decoration: const InputDecoration(
+                labelText: "Son Kullanma (AA/YY)",
               ),
+              keyboardType: TextInputType.datetime,
             ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _cvvController,
+              decoration: const InputDecoration(labelText: "CVV"),
+              keyboardType: TextInputType.number,
+              obscureText: true,
+            ),
+            const SizedBox(height: 24),
+            isProcessing
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                  onPressed: _processPayment,
+                  child: const Text("Ödemeyi Tamamla"),
+                ),
           ],
         ),
       ),

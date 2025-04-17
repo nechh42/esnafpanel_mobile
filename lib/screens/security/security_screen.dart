@@ -1,47 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class SecurityScreen extends StatefulWidget {
+class SecurityScreen extends StatelessWidget {
   const SecurityScreen({super.key});
 
-  @override
-  State<SecurityScreen> createState() => _SecurityScreenState();
-}
+  void _signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
 
-class _SecurityScreenState extends State<SecurityScreen> {
-  bool _biometricEnabled = false;
-  bool _twoFactorAuth = false;
+  void _changePassword(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && user.email != null) {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: user.email!);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.',
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Güvenlik Ayarları'), centerTitle: true),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            SwitchListTile(
-              title: const Text('Biyometrik Giriş'),
-              subtitle: const Text('Parmak izi veya yüz tanıma ile giriş yap'),
-              value: _biometricEnabled,
-              onChanged: (bool value) {
-                setState(() {
-                  _biometricEnabled = value;
-                });
-              },
-            ),
-            const Divider(),
-            SwitchListTile(
-              title: const Text('İki Aşamalı Doğrulama'),
-              subtitle: const Text('Girişlerde ekstra güvenlik kodu iste'),
-              value: _twoFactorAuth,
-              onChanged: (bool value) {
-                setState(() {
-                  _twoFactorAuth = value;
-                });
-              },
-            ),
-          ],
-        ),
+      appBar: AppBar(title: const Text("Güvenlik")),
+      body: ListView(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.lock_reset),
+            title: const Text("Şifreyi Değiştir"),
+            onTap: () => _changePassword(context),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text("Çıkış Yap"),
+            onTap: () => _signOut(context),
+          ),
+        ],
       ),
     );
   }

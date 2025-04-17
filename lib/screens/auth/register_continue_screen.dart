@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterContinueScreen extends StatefulWidget {
@@ -9,84 +10,61 @@ class RegisterContinueScreen extends StatefulWidget {
 }
 
 class _RegisterContinueScreenState extends State<RegisterContinueScreen> {
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isLoading = false;
-  String? _errorMessage;
+  final TextEditingController _businessNameController = TextEditingController();
+  final TextEditingController _sectorController = TextEditingController();
 
-  Future<void> _register() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  bool isLoading = false;
+
+  Future<void> _saveBusinessInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final businessName = _businessNameController.text.trim();
+    final sector = _sectorController.text.trim();
+
+    if (businessName.isEmpty || sector.isEmpty) return;
+
+    setState(() => isLoading = true);
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-      Navigator.pushReplacementNamed(context, '/subscription');
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _errorMessage = e.message;
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'businessName': businessName,
+        'sector': sector,
+        'setupCompleted': true,
       });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
+      Navigator.pushReplacementNamed(context, '/subscription');
+    } catch (e) {
+      debugPrint("Firestore kayıt hatası: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kayıt Ol')),
+      appBar: AppBar(title: const Text("İşletme Bilgileri")),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Ad Soyad'),
+              controller: _businessNameController,
+              decoration: const InputDecoration(labelText: "İşletme Adı"),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'E-posta'),
-              keyboardType: TextInputType.emailAddress,
+              controller: _sectorController,
+              decoration: const InputDecoration(labelText: "Sektör"),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Şifre'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
-            if (_errorMessage != null)
-              Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 16),
-            _isLoading
+            const SizedBox(height: 24),
+            isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                  onPressed: _register,
-                  child: const Text('Kayıt Ol'),
+                  onPressed: _saveBusinessInfo,
+                  child: const Text("Devam Et"),
                 ),
-            TextButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              child: const Text('Zaten hesabın var mı? Giriş Yap'),
-            ),
           ],
         ),
       ),

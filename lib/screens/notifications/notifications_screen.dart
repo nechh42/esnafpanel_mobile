@@ -3,31 +3,29 @@ import 'package:flutter/material.dart';
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
+  final List<Map<String, String>> dummyNotifications = const [
+    {'title': 'Abonelik Başladı', 'body': '10 günlük demo süreniz başladı.'},
+    {
+      'title': 'Güncelleme',
+      'body': 'Yeni özellikler eklendi. Ayarlar menüsünü kontrol edin.',
+    },
+    {'title': 'Bildirim', 'body': 'Veri yedekleme başarıyla tamamlandı.'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Bildirimler'), centerTitle: true),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: const [
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text('Yeni müşteri kaydı yapıldı'),
-            subtitle: Text('2 dakika önce'),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.message),
-            title: Text('WhatsApp mesajı gönderildi'),
-            subtitle: Text('10 dakika önce'),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.cloud_upload),
-            title: Text('Veri yedeklemesi tamamlandı'),
-            subtitle: Text('Bugün 09:30'),
-          ),
-        ],
+      appBar: AppBar(title: const Text("Bildirimler")),
+      body: ListView.builder(
+        itemCount: dummyNotifications.length,
+        itemBuilder: (context, index) {
+          final notification = dummyNotifications[index];
+          return ListTile(
+            leading: const Icon(Icons.notifications),
+            title: Text(notification['title']!),
+            subtitle: Text(notification['body']!),
+          );
+        },
       ),
     );
   }

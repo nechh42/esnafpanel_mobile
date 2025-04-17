@@ -8,59 +8,75 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
-  String? selectedPlan;
+  String selectedPlan = 'demo'; // Varsayılan olarak demo
 
-  void _selectPlan(String plan) {
-    setState(() {
-      selectedPlan = plan;
-    });
+  void _continueToPayment() {
+    if (selectedPlan == 'demo') {
+      Navigator.pushReplacementNamed(context, '/main_panel');
+    } else {
+      Navigator.pushNamed(context, '/payment');
+    }
   }
 
-  void _proceedToPayment() {
-    if (selectedPlan == null) return;
-
-    Navigator.pushNamed(context, '/payment', arguments: selectedPlan);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Abonelik Planı Seç')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+  Widget _buildPlanTile(String title, String description, String planKey) {
+    final isSelected = selectedPlan == planKey;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedPlan = planKey;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.teal.shade100 : Colors.grey.shade200,
+          border: Border.all(color: isSelected ? Colors.teal : Colors.grey),
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildPlanTile('Demo', '10 gün ücretsiz deneme'),
-            const SizedBox(height: 12),
-            _buildPlanTile('Starter', '₺99,99 / ay - Temel özellikler'),
-            const SizedBox(height: 12),
-            _buildPlanTile('Pro', '₺249,99 / ay - Tüm özellikler'),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: _proceedToPayment,
-              child: const Text('Devam Et'),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 6),
+            Text(description),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPlanTile(String plan, String description) {
-    final isSelected = selectedPlan == plan;
-    return GestureDetector(
-      onTap: () => _selectPlan(plan),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue.shade100 : Colors.white,
-          border: Border.all(color: isSelected ? Colors.blue : Colors.grey),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Row(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Abonelik Seçimi")),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
           children: [
-            Expanded(child: Text(description)),
-            if (isSelected) const Icon(Icons.check, color: Colors.blue),
+            _buildPlanTile(
+              "Demo (10 Gün)",
+              "Sınırlı kullanım - ücretsiz",
+              "demo",
+            ),
+            _buildPlanTile(
+              "Starter",
+              "₺99,99/ay - Temel özellikler",
+              "starter",
+            ),
+            _buildPlanTile(
+              "Pro",
+              "₺249,99/ay - Tüm özellikler + destek",
+              "pro",
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _continueToPayment,
+              child: const Text("Devam Et"),
+            ),
           ],
         ),
       ),
