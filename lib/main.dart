@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:esnafpanel_mobile/firebase_options.dart';
+import 'firebase/firebase_options.dart';
 
 // Ekranlar
 import 'screens/auth/login_screen.dart';
@@ -14,6 +14,8 @@ import 'screens/security/security_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Firebase başlatılıyor
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const EsnafPanelApp());
@@ -38,7 +40,7 @@ class EsnafPanelApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register_continue': (context) => const RegisterContinueScreen(),
         '/subscription': (context) => const SubscriptionScreen(),
-        '/payment': (context) => const PaymentScreen(),
+        '/payment': (context) => PaymentScreen(selectedPlan: 'defaultPlan'),
         '/main_panel': (context) => const MainPanelScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/notifications': (context) => const NotificationsScreen(),
