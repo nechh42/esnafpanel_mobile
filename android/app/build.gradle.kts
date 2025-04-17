@@ -42,3 +42,6 @@ android {
 flutter {
     source = "../.."
 }
+
+// En alt satıra yakın bir yere:
+apply(plugin = "com.google.gms.google-services")

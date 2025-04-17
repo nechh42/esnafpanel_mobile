@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "196382341550",
+    "project_id": "esnafpanel-mobile-6911c",
+    "storage_bucket": "esnafpanel-mobile-6911c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196382341550:android:357081458bc77a8363703f",
+        "android_client_info": {
+          "package_name": "com.example.esnafpanel_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8P8y_g1F54Po4zydHkZ5AAEQH--kkdnI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
