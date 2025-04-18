@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:esnafpanel_mobile/firebase/firebase_auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,25 +10,33 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _auth = FirebaseAuth.instance;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   Future<void> _signIn() async {
-    final authService = FirebaseAuthService();
+    try {
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
-    final userCredential = await authService.signInWithEmail(
-      emailController.text.trim(),
-      passwordController.text.trim(),
-    );
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .get();
 
-    if (userCredential != null) {
-      print("✅ Giriş başarılı: ${userCredential.user?.email}");
-      Navigator.pushReplacementNamed(context, '/main_panel');
-    } else {
+      final data = doc.data();
+      if (data != null && data['setupCompleted'] == true) {
+        Navigator.pushReplacementNamed(context, '/mainPanel');
+      } else {
+        Navigator.pushReplacementNamed(context, '/subscription');
+      }
+    } catch (e) {
+      debugPrint("Sign In Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Giriş başarısız! Lütfen bilgileri kontrol edin.'),
-        ),
+        SnackBar(content: Text('Giriş başarısız: ${e.toString()}')),
       );
     }
   }
@@ -41,19 +50,19 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text("Giriş Yap", style: TextStyle(fontSize: 24)),
+            const SizedBox(height: 24),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
             const SizedBox(height: 16),
             TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: "Email"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: "Şifre"),
+              controller: _passwordController,
               obscureText: true,
+              decoration: const InputDecoration(labelText: 'Şifre'),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: _signIn, child: const Text("Giriş")),
+            const SizedBox(height: 32),
+            ElevatedButton(onPressed: _signIn, child: const Text("Giriş Yap")),
           ],
         ),
       ),

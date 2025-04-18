@@ -10,15 +10,19 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final _auth = FirebaseAuth.instance;
+
   @override
   void initState() {
     super.initState();
-    _checkSetupStatus();
+    _checkLoginStatus();
   }
 
-  Future<void> _checkSetupStatus() async {
-    await Future.delayed(const Duration(seconds: 2));
-    final user = FirebaseAuth.instance.currentUser;
+  Future<void> _checkLoginStatus() async {
+    await Future.delayed(
+      const Duration(seconds: 2),
+    ); // Splash için küçük bekleme
+    final user = _auth.currentUser;
 
     if (user != null) {
       final doc =
@@ -26,9 +30,9 @@ class _SplashScreenState extends State<SplashScreen> {
               .collection('users')
               .doc(user.uid)
               .get();
-
-      if (doc.exists && doc.data()?['setupCompleted'] == true) {
-        Navigator.pushReplacementNamed(context, '/main_panel');
+      final data = doc.data();
+      if (data != null && data['setupCompleted'] == true) {
+        Navigator.pushReplacementNamed(context, '/mainPanel');
       } else {
         Navigator.pushReplacementNamed(context, '/subscription');
       }

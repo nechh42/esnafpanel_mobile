@@ -15,6 +15,7 @@ import 'theme/theme_screen.dart';
 import 'screens/security/security_screen.dart';
 import 'screens/settings/profile_edit_screen.dart';
 import 'screens/subscription/subscription_screen.dart';
+import 'screens/notifications/notifications_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
               '/security': (context) => const SecurityScreen(),
               '/profile_edit': (context) => const ProfileEditScreen(),
               '/subscription': (context) => const SubscriptionScreen(),
+              '/notifications': (context) => const NotificationsScreen(),
             },
           );
         },
