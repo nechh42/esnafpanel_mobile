@@ -1,11 +1,10 @@
 name: esnafpanel_mobile
-description: EsnafPanel mobil uygulaması - Flutter ile geliştirildi.
-publish_to: 'none' # Eğer pub.dev'e yayınlamayacaksan böyle kalabilir.
-
+description: Flutter projesi (Hasan için özel yapı)
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.7.0 <4.0.0'
+  sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -22,6 +21,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true

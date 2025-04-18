@@ -1,45 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:esnafpanel_mobile/providers/theme_provider.dart';
+import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Ayarlar")),
+      appBar: AppBar(title: const Text('Ayarlar')),
       body: ListView(
         children: [
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: const Text("Dil Seçimi"),
-            subtitle: const Text("Türkçe"),
-            onTap: () {
-              // Dil ayarı ekranına yönlendirme yapılabilir
+          SwitchListTile(
+            title: const Text('Karanlık Mod'),
+            value: themeProvider.isDarkMode,
+            onChanged: (val) {
+              themeProvider.toggleTheme();
             },
           ),
-          const Divider(),
           ListTile(
-            leading: const Icon(Icons.brightness_6),
-            title: const Text("Tema"),
-            subtitle: const Text("Sistem Varsayılanı"),
+            title: const Text('Profil Ayarları'),
             onTap: () {
-              // Tema değiştirme işlemi yapılabilir
+              // Profil ekranına geçiş yapılabilir
             },
           ),
-          const Divider(),
           ListTile(
-            leading: const Icon(Icons.support_agent),
-            title: const Text("Destek"),
-            subtitle: const Text("Bize ulaşın"),
+            title: const Text('Şifre Değiştir'),
             onTap: () {
-              // Destek ekranına yönlendirme yapılabilir
+              Navigator.pushNamed(context, '/security');
             },
           ),
-          const Divider(),
           ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text("Sürüm"),
-            subtitle: const Text("v1.0.0"),
+            title: const Text('Bildirim Ayarları'),
+            onTap: () {
+              Navigator.pushNamed(context, '/notifications');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Profil Bilgilerini Düzenle'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfileEditScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),

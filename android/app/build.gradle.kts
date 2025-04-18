@@ -45,3 +45,7 @@ flutter {
 
 // En alt satıra yakın bir yere:
 apply(plugin = "com.google.gms.google-services")
+
+android {
+    ndkVersion = "27.0.12077973"
+}

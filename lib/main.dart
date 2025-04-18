@@ -1,50 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase/firebase_options.dart';
+import 'package:provider/provider.dart';
+import 'package:esnafpanel_mobile/screens/splash/splash_screen.dart';
+import 'package:esnafpanel_mobile/providers/theme_provider.dart';
 
-import 'screens/splash/splash_screen.dart';
-import 'screens/auth/login_screen.dart';
-import 'screens/auth/register_continue_screen.dart';
-import 'screens/subscription/subscription_screen.dart';
-import 'screens/subscription/payment_screen.dart';
-import 'screens/main_panel/main_panel_screen.dart';
-import 'screens/settings/settings_screen.dart';
-import 'screens/notifications/notifications_screen.dart';
-import 'screens/security/security_screen.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  runApp(const EsnafPanelApp());
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+      child: const MyApp(),
+    ),
+  );
 }
 
-class EsnafPanelApp extends StatelessWidget {
-  const EsnafPanelApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       title: 'EsnafPanel',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(brightness: Brightness.dark),
-      themeMode: ThemeMode.system,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register_continue': (context) => const RegisterContinueScreen(),
-        '/subscription': (context) => const SubscriptionScreen(),
-        '/payment': (context) => const PaymentScreen(),
-        '/main_panel': (context) => const MainPanelScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
-        '/security': (context) => const SecurityScreen(),
-      },
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: const SplashScreen(),
     );
   }
 }
