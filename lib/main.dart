@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:esnafpanel_mobile/screens/splash/splash_screen.dart';
 import 'package:esnafpanel_mobile/providers/theme_provider.dart';
+import 'package:esnafpanel_mobile/screens/splash/splash_screen.dart';
+import 'package:esnafpanel_mobile/screens/settings/settings_screen.dart';
+import 'package:esnafpanel_mobile/screens/settings/profile_edit_screen.dart';
+import 'package:esnafpanel_mobile/screens/security/security_screen.dart';
+import 'package:esnafpanel_mobile/screens/settings/theme_screen.dart';
 
 void main() {
   runApp(
@@ -24,7 +28,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: const SplashScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/profile_edit': (context) => const ProfileEditScreen(),
+        '/theme': (context) => const ThemeScreen(),
+        '/security': (context) => const SecurityScreen(),
+      },
     );
   }
 }
