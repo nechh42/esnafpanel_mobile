@@ -1,69 +1,74 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterContinueScreen extends StatefulWidget {
-  const RegisterContinueScreen({super.key});
+  const RegisterContinueScreen({Key? key}) : super(key: key);
 
   @override
   State<RegisterContinueScreen> createState() => _RegisterContinueScreenState();
 }
 
 class _RegisterContinueScreenState extends State<RegisterContinueScreen> {
-  final TextEditingController _businessNameController = TextEditingController();
-  final TextEditingController _sectorController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  bool isLoading = false;
+  bool _isLoading = false;
 
-  Future<void> _saveBusinessInfo() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    final businessName = _businessNameController.text.trim();
-    final sector = _sectorController.text.trim();
-
-    if (businessName.isEmpty || sector.isEmpty) return;
-
-    setState(() => isLoading = true);
+  Future<void> _signUp() async {
+    setState(() => _isLoading = true);
 
     try {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'businessName': businessName,
-        'sector': sector,
-        'setupCompleted': true,
-      });
+      await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Kayıt başarılı!')));
 
       Navigator.pushReplacementNamed(context, '/subscription');
-    } catch (e) {
-      debugPrint("Firestore kayıt hatası: $e");
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = "Kayıt başarısız.";
+      if (e.code == 'email-already-in-use') {
+        errorMessage = "Bu e-posta zaten kayıtlı.";
+      } else if (e.code == 'weak-password') {
+        errorMessage = "Şifre çok zayıf.";
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
     } finally {
-      setState(() => isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("İşletme Bilgileri")),
+      appBar: AppBar(title: const Text("Kayıt Ol")),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             TextField(
-              controller: _businessNameController,
-              decoration: const InputDecoration(labelText: "İşletme Adı"),
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: "E-posta"),
+              keyboardType: TextInputType.emailAddress,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextField(
-              controller: _sectorController,
-              decoration: const InputDecoration(labelText: "Sektör"),
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: "Şifre"),
+              obscureText: true,
             ),
             const SizedBox(height: 24),
-            isLoading
+            _isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                  onPressed: _saveBusinessInfo,
-                  child: const Text("Devam Et"),
+                  onPressed: _signUp,
+                  child: const Text("Kayıt Ol"),
                 ),
           ],
         ),

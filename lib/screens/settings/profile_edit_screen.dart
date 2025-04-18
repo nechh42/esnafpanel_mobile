@@ -1,115 +1,81 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileEditScreen extends StatefulWidget {
-  const ProfileEditScreen({Key? key}) : super(key: key);
+  const ProfileEditScreen({super.key});
 
   @override
-  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
+  _ProfileEditScreenState createState() => _ProfileEditScreenState();
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _loadUserProfile();
-  }
-
-  Future<void> _loadUserProfile() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final doc =
-          await FirebaseFirestore.instance
-              .collection('businesses')
-              .doc(user.uid)
-              .get();
-      final data = doc.data();
-      if (data != null) {
-        _nameController.text = data['name'] ?? '';
-        _emailController.text = data['email'] ?? '';
-        _phoneController.text = data['phoneNumber'] ?? '';
-      }
-    }
+  void dispose() {
+    _fullNameController.dispose();
+    _phoneNumberController.dispose();
+    super.dispose();
   }
 
   Future<void> _saveProfile() async {
-    if (_formKey.currentState?.validate() != true) return;
-
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      await FirebaseFirestore.instance
-          .collection('businesses')
-          .doc(user.uid)
-          .update({
-            'name': _nameController.text.trim(),
-            'email': _emailController.text.trim(),
-            'phoneNumber': _phoneController.text.trim(),
-          });
-
+      await saveUserProfile(
+        uid: user.uid,
+        fullName: _fullNameController.text,
+        phoneNumber: _phoneNumberController.text,
+      );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil başarıyla güncellendi')),
+        const SnackBar(content: Text('Profil başarıyla güncellendi!')),
       );
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    super.dispose();
+  Future<void> saveUserProfile({
+    required String uid,
+    required String fullName,
+    required String phoneNumber,
+  }) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'fullName': fullName,
+        'phoneNumber': phoneNumber,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      debugPrint('✅ Kullanıcı Firestore’a kaydedildi.');
+    } catch (e) {
+      debugPrint('❌ Firestore hata: \$e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil Düzenle')),
+      appBar: AppBar(title: const Text("Profil Düzenle")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Ad Soyad'),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty ? 'Ad boş olamaz' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'E-posta'),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'E-posta boş olamaz'
-                            : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Telefon'),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Telefon boş olamaz'
-                            : null,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _saveProfile,
-                child: const Text('Kaydet'),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            TextField(
+              controller: _fullNameController,
+              decoration: const InputDecoration(labelText: 'Ad Soyad'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _phoneNumberController,
+              decoration: const InputDecoration(labelText: 'Telefon Numarası'),
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: _saveProfile,
+              child: const Text('Kaydet'),
+            ),
+          ],
         ),
       ),
     );

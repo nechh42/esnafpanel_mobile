@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,31 +13,27 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkSetupStatus();
-    });
+    _checkSetupStatus();
   }
 
   Future<void> _checkSetupStatus() async {
+    await Future.delayed(const Duration(seconds: 2));
     final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) {
-      Navigator.pushReplacementNamed(context, '/login');
-      return;
-    }
+    if (user != null) {
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
 
-    final doc =
-        await FirebaseFirestore.instance
-            .collection('businesses')
-            .doc(user.uid)
-            .get();
-
-    final setupCompleted = doc.exists && doc.data()?['setupCompleted'] == true;
-
-    if (setupCompleted) {
-      Navigator.pushReplacementNamed(context, '/mainPanel');
+      if (doc.exists && doc.data()?['setupCompleted'] == true) {
+        Navigator.pushReplacementNamed(context, '/main_panel');
+      } else {
+        Navigator.pushReplacementNamed(context, '/subscription');
+      }
     } else {
-      Navigator.pushReplacementNamed(context, '/register_continue');
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 

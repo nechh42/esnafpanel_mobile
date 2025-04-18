@@ -8,7 +8,7 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
-  String selectedPlan = 'demo'; // Varsayılan olarak demo
+  String selectedPlan = 'demo';
 
   void _continueToPayment() {
     if (selectedPlan == 'demo') {
