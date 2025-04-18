@@ -1,90 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:esnafpanel_mobile/screens/main_panel/main_panel_screen.dart';
-import 'package:esnafpanel_mobile/screens/auth/register_continue_screen.dart';
+import 'package:esnafpanel_mobile/firebase/firebase_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  bool _isLoading = false;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   Future<void> _signIn() async {
-    setState(() => _isLoading = true);
+    final authService = FirebaseAuthService();
 
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+    final userCredential = await authService.signInWithEmail(
+      emailController.text.trim(),
+      passwordController.text.trim(),
+    );
+
+    if (userCredential != null) {
+      print("✅ Giriş başarılı: ${userCredential.user?.email}");
+      Navigator.pushReplacementNamed(context, '/main_panel');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Giriş başarısız! Lütfen bilgileri kontrol edin.'),
+        ),
       );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainPanelScreen()),
-      );
-    } on FirebaseAuthException catch (e) {
-      String errorMessage = "Giriş başarısız. Lütfen bilgileri kontrol edin.";
-
-      if (e.code == 'user-not-found') {
-        errorMessage = "Bu e-posta ile kayıtlı kullanıcı bulunamadı.";
-      } else if (e.code == 'wrong-password') {
-        errorMessage = "Hatalı şifre girdiniz.";
-      }
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(errorMessage)));
-    } finally {
-      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Giriş Yap')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: "E-posta"),
-              keyboardType: TextInputType.emailAddress,
-            ),
+            const Text("Giriş Yap", style: TextStyle(fontSize: 24)),
             const SizedBox(height: 16),
             TextField(
-              controller: _passwordController,
+              controller: emailController,
+              decoration: const InputDecoration(labelText: "Email"),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: passwordController,
               decoration: const InputDecoration(labelText: "Şifre"),
               obscureText: true,
             ),
-            const SizedBox(height: 24),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                  onPressed: _signIn,
-                  child: const Text("Giriş Yap"),
-                ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const RegisterContinueScreen(),
-                  ),
-                );
-              },
-              child: const Text("Hesabın yok mu? Kayıt ol"),
-            ),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: _signIn, child: const Text("Giriş")),
           ],
         ),
       ),
