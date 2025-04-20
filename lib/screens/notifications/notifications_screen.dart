@@ -10,20 +10,23 @@ class NotificationsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: const [
-          NotificationTile(
-            title: "Yeni Sipariş",
-            message: "Yeni bir sipariş alındı.",
-            time: "5 dk önce",
+          NotificationCard(
+            title: 'Yeni Özellik!',
+            message:
+                'Artık siparişleri WhatsApp üzerinden takip edebilirsiniz.',
+            date: '18 Nisan 2025',
           ),
-          NotificationTile(
-            title: "Ödeme Başarılı",
-            message: "Abonelik ödemeniz alındı.",
-            time: "1 saat önce",
+          NotificationCard(
+            title: 'Bakım Zamanı',
+            message:
+                'Sunucularımız bu gece 00:00-02:00 arasında bakımda olacak.',
+            date: '17 Nisan 2025',
           ),
-          NotificationTile(
-            title: "Sistem Güncellemesi",
-            message: "Uygulamada yeni özellikler eklendi.",
-            time: "Dün",
+          NotificationCard(
+            title: 'Pro Paket Avantajı',
+            message:
+                'Instagram entegrasyonu şimdi aktif! Pro kullanıcılar için geçerli.',
+            date: '16 Nisan 2025',
           ),
         ],
       ),
@@ -31,29 +34,38 @@ class NotificationsScreen extends StatelessWidget {
   }
 }
 
-class NotificationTile extends StatelessWidget {
+class NotificationCard extends StatelessWidget {
   final String title;
   final String message;
-  final String time;
+  final String date;
 
-  const NotificationTile({
+  const NotificationCard({
     super.key,
     required this.title,
     required this.message,
-    required this.time,
+    required this.date,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
-        leading: const Icon(Icons.notifications, color: Colors.blue),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(message),
-        trailing: Text(time, style: const TextStyle(fontSize: 12)),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(message),
+            const SizedBox(height: 8),
+            Text(
+              date,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }
