@@ -1,42 +1,48 @@
-// lib/services/google_play_billing.dart
+// lib/screens/payment/google_play_billing.dart
 
-enum SubscriptionPlan { demo, starter, pro }
+import 'package:flutter/material.dart';
 
-class GooglePlayBillingService {
-  static const int demoGunSayisi = 10;
+class GooglePlayBillingScreen extends StatelessWidget {
+  const GooglePlayBillingScreen({Key? key}) : super(key: key);
 
-  /// Bu method, kullanıcının kayıt olduğu tarihi alarak demo süresinin bitip bitmediğini kontrol eder.
-  static bool isDemoExpired(DateTime kayitTarihi) {
-    final simdikiZaman = DateTime.now();
-    final fark = simdikiZaman.difference(kayitTarihi).inDays;
-    return fark > demoGunSayisi;
-  }
-
-  /// Plan adına göre ilgili paketi döner
-  static SubscriptionPlan getPlanFromString(String planAdi) {
-    switch (planAdi.toLowerCase()) {
-      case 'starter':
-        return SubscriptionPlan.starter;
-      case 'pro':
-        return SubscriptionPlan.pro;
-      case 'demo':
-      default:
-        return SubscriptionPlan.demo;
-    }
-  }
-
-  /// Bu method, plan adına göre ödeme gerekip gerekmediğini kontrol eder
-  static bool requiresPayment(SubscriptionPlan plan) {
-    return plan == SubscriptionPlan.starter || plan == SubscriptionPlan.pro;
-  }
-
-  /// Sadece Pro plana sahip kullanıcılar için özel erişim kontrolü
-  static bool isProAccess(SubscriptionPlan plan) {
-    return plan == SubscriptionPlan.pro;
-  }
-
-  /// Sadece Starter ve Pro kullanıcıların erişebileceği alanlar için kontrol
-  static bool isPaidUser(SubscriptionPlan plan) {
-    return plan == SubscriptionPlan.starter || plan == SubscriptionPlan.pro;
+  @override
+  Widget build(BuildContext context) {
+    // Geçici UI, Google Play Billing entegrasyonu eklenecek
+    return Scaffold(
+      appBar: AppBar(title: const Text("Google Play Ödemeleri")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Abonelik Planınızı Yönetin",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: Google Play Billing entegrasyonu yapılacak
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      "Google Play bağlantısı yakında aktif olacak.",
+                    ),
+                  ),
+                );
+              },
+              child: const Text("Abonelik Satın Al"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: Abonelik durumunu kontrol et
+              },
+              child: const Text("Abonelik Durumunu Kontrol Et"),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

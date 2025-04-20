@@ -1,58 +1,92 @@
 import 'package:flutter/material.dart';
 
-class CustomerManagementScreen extends StatelessWidget {
-  const CustomerManagementScreen({super.key});
+class CustomerManagementScreen extends StatefulWidget {
+  const CustomerManagementScreen({Key? key}) : super(key: key);
+
+  @override
+  State<CustomerManagementScreen> createState() =>
+      _CustomerManagementScreenState();
+}
+
+class _CustomerManagementScreenState extends State<CustomerManagementScreen> {
+  final List<Map<String, String>> customers = [];
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+
+  void addCustomer() {
+    if (nameController.text.isEmpty || phoneController.text.isEmpty) return;
+    setState(() {
+      customers.add({
+        'name': nameController.text,
+        'phone': phoneController.text,
+      });
+    });
+    nameController.clear();
+    phoneController.clear();
+  }
+
+  void deleteCustomer(int index) {
+    setState(() {
+      customers.removeAt(index);
+    });
+  }
+
+  void showAddCustomerDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Yeni Müşteri Ekle'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'İsim'),
+                ),
+                TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'Telefon'),
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('İptal'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  addCustomer();
+                  Navigator.pop(context);
+                },
+                child: const Text('Ekle'),
+              ),
+            ],
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Müşteri Yönetimi')),
-      body: ListView.builder(
-        itemCount: 10, // Örnek veri sayısı
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: const Icon(Icons.person),
-            title: Text('Müşteri ${index + 1}'),
-            subtitle: const Text('Telefon: 0500 000 00 00'),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                // düzenleme ekranına yönlendirme
-              },
-            ),
-            onLongPress: () {
-              showDialog(
-                context: context,
-                builder:
-                    (_) => AlertDialog(
-                      title: const Text('Müşteri Sil'),
-                      content: const Text(
-                        'Bu müşteriyi silmek istediğinize emin misiniz?',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('İptal'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            // silme işlemi
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Sil'),
-                        ),
-                      ],
-                    ),
-              );
-            },
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Yeni müşteri ekleme ekranına yönlendirme
-        },
+        onPressed: showAddCustomerDialog,
         child: const Icon(Icons.add),
+      ),
+      body: ListView.builder(
+        itemCount: customers.length,
+        itemBuilder:
+            (context, index) => ListTile(
+              title: Text(customers[index]['name'] ?? ''),
+              subtitle: Text(customers[index]['phone'] ?? ''),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => deleteCustomer(index),
+              ),
+            ),
       ),
     );
   }
