@@ -1,6 +1,6 @@
 // lib/screens/payment/payment_screen.dart
 import 'package:flutter/material.dart';
-import 'package:esnafpanel_mobile/screens/payment/google_play_billing.dart';
+import 'package:esnafpanel_mobile/screens/payments/google_play_billing.dart';
 import 'package:in_app_purchase/in_app_purchase.dart'; // Ensure this package is added to your pubspec.yaml
 
 class PaymentScreen extends StatefulWidget {
