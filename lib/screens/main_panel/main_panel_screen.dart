@@ -11,21 +11,42 @@ class MainPanelScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<_PanelItem> panelItems = [
       _PanelItem(
-        icon: Icons.notifications_none,
+        icon: Icons.notifications,
         title: 'Bildirimler',
         route: '/notifications',
       ),
+      _PanelItem(icon: Icons.settings, title: 'Ayarlar', route: '/settings'),
+      _PanelItem(icon: Icons.lock, title: 'Güvenlik', route: '/security'),
+      _PanelItem(icon: Icons.help, title: 'Yardım', route: '/help'),
       _PanelItem(
-        icon: Icons.settings_outlined,
-        title: 'Ayarlar',
-        route: '/settings',
+        icon: Icons.check_circle_outline,
+        title: 'Abonelik Kontrol',
+        route: '/abone_kontrol',
+      ),
+      _PanelItem(icon: Icons.backup, title: 'Yedekleme', route: '/yedekleme'),
+      _PanelItem(
+        icon: Icons.camera_alt,
+        title: 'Instagram',
+        route: '/instagram',
+      ),
+      _PanelItem(icon: Icons.message, title: 'WhatsApp', route: '/whatsapp'),
+      _PanelItem(icon: Icons.bar_chart, title: 'Raporlama', route: '/report'),
+      _PanelItem(icon: Icons.people, title: 'Müşteriler', route: '/customers'),
+      _PanelItem(
+        icon: Icons.shopping_cart,
+        title: 'Sipariş/Randevu',
+        route: '/orders',
       ),
       _PanelItem(
-        icon: Icons.lock_outline,
-        title: 'Güvenlik',
-        route: '/security',
+        icon: Icons.payment,
+        title: 'Ödeme',
+        route: '/google_play_billing',
       ),
-      _PanelItem(icon: Icons.help_outline, title: 'Yardım', route: '/help'),
+      _PanelItem(
+        icon: Icons.color_lens,
+        title: 'Tema',
+        route: '/theme_customizer',
+      ),
     ];
 
     return Scaffold(
@@ -37,33 +58,31 @@ class MainPanelScreen extends StatelessWidget {
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
           children:
-              panelItems
-                  .map(
-                    (item) => GestureDetector(
-                      onTap: () => navigateTo(context, item.route),
-                      child: Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(item.icon, size: 48),
-                            const SizedBox(height: 10),
-                            Text(
-                              item.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+              panelItems.map((item) {
+                return GestureDetector(
+                  onTap: () => navigateTo(context, item.route),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  )
-                  .toList(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(item.icon, size: 42),
+                        const SizedBox(height: 10),
+                        Text(
+                          item.title,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
         ),
       ),
     );

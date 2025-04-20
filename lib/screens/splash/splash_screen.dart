@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esnafpanel_mobile/services/auth_service.dart';
+import 'package:esnafpanel_mobile/screens/auth/login_screen.dart';
+import 'package:esnafpanel_mobile/screens/auth/register_continue_screen.dart';
+import 'package:esnafpanel_mobile/screens/main_panel/main_panel_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -10,43 +13,43 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final AuthService _authService = AuthService();
+
   @override
   void initState() {
     super.initState();
+    _checkUser();
+  }
 
-    Future.microtask(() async {
-      await Future.delayed(
-        const Duration(seconds: 2),
-      ); // Logo animasyonu vs için
+  Future<void> _checkUser() async {
+    await Future.delayed(const Duration(seconds: 2)); // Logo gösterimi için
 
-      final user = FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
 
-      if (user == null) {
-        Navigator.pushReplacementNamed(context, '/login');
-        return;
-      }
+    if (user == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } else {
+      bool isSetupDone = await _authService.isSetupCompleted(user.uid);
 
-      final doc =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .get();
-
-      final setupCompleted = doc.data()?['setupCompleted'] ?? false;
-
-      if (setupCompleted) {
-        Navigator.pushReplacementNamed(context, '/main_panel');
+      if (isSetupDone) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainPanelScreen()),
+        );
       } else {
-        Navigator.pushReplacementNamed(context, '/register_continue');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const RegisterContinueScreen()),
+        );
       }
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: FlutterLogo(size: 80)),
-    );
+    return const Scaffold(body: Center(child: FlutterLogo(size: 100)));
   }
 }

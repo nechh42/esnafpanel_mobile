@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class ReportScreen extends StatelessWidget {
-  final String userPlan; // 'starter' or 'pro'
+class ReportScreen extends StatefulWidget {
+  const ReportScreen({super.key});
 
-  const ReportScreen({super.key, required this.userPlan});
+  @override
+  State<ReportScreen> createState() => _ReportScreenState();
+}
+
+class _ReportScreenState extends State<ReportScreen> {
+  bool isPro = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Demo amaçlı. Gerçek kullanımda Firebase'den kullanıcı paketi alınmalı.
+    isPro = true; // veya false olarak değiştir
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,24 +24,23 @@ class ReportScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Raporlama')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: userPlan == 'pro' ? _buildProReport() : _buildStarterReport(),
+        child: isPro ? _buildProReport() : _buildStarterReport(),
       ),
     );
   }
 
   Widget _buildStarterReport() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Text(
-          'Genel İşlem Özeti',
+          'Özet Rapor',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 16),
-        Text('Toplam Müşteri: 25'),
-        Text('Toplam Sipariş: 40'),
-        Text('En Aktif Gün: Çarşamba'),
-        Text('En Çok Talep: Bakım Paketi'),
+        SizedBox(height: 10),
+        Text('Toplam Müşteri: 42'),
+        Text('Toplam Sipariş: 58'),
+        Text('Toplam Gelir: ₺9.820'),
       ],
     );
   }
@@ -39,43 +50,47 @@ class ReportScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Filtreli Grafiksel Raporlama',
+          'Gelişmiş Rapor (Pro)',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
-        const Text('Aylık Sipariş Grafiği'),
-        const SizedBox(height: 10),
-        AspectRatio(
-          aspectRatio: 1.7,
+        SizedBox(
+          height: 250,
           child: BarChart(
             BarChartData(
-              borderData: FlBorderData(show: false),
-              barGroups: [
-                BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 10)]),
-                BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 15)]),
-                BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 8)]),
-                BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 12)]),
-              ],
+              alignment: BarChartAlignment.spaceAround,
+              barTouchData: BarTouchData(enabled: true),
               titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: true),
+                ),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      switch (value.toInt()) {
-                        case 0:
-                          return const Text('Ocak');
-                        case 1:
-                          return const Text('Şubat');
-                        case 2:
-                          return const Text('Mart');
-                        case 3:
-                          return const Text('Nisan');
-                      }
-                      return const Text('');
-                    },
+                    getTitlesWidget:
+                        (value, _) => Text(
+                          [
+                            'Pzt',
+                            'Sal',
+                            'Çar',
+                            'Per',
+                            'Cum',
+                            'Cmt',
+                            'Paz',
+                          ][value.toInt()],
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                    interval: 1,
                   ),
                 ),
               ),
+              borderData: FlBorderData(show: false),
+              barGroups: List.generate(7, (index) {
+                return BarChartGroupData(
+                  x: index,
+                  barRods: [BarChartRodData(toY: (index + 1) * 2.0, width: 15)],
+                );
+              }),
             ),
           ),
         ),

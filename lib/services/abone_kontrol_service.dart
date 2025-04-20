@@ -1,3 +1,5 @@
+// lib/services/abone_kontrol_service.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -5,32 +7,38 @@ class AboneKontrolService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Demo süresi gün cinsinden
-  final int demoSuresi = 10;
-
-  Future<bool> isAbonelikGecerli() async {
+  Future<bool> isDemoExpired() async {
     final user = _auth.currentUser;
     if (user == null) return false;
 
-    final docRef = _firestore.collection('users').doc(user.uid);
-    final doc = await docRef.get();
+    final snapshot = await _firestore.collection('users').doc(user.uid).get();
+    if (!snapshot.exists) return false;
 
-    if (!doc.exists) return false;
+    final data = snapshot.data();
+    final Timestamp createdAt = data?['createdAt'];
+    // No need to check for null as 'createdAt' is non-nullable
 
-    final data = doc.data();
-    if (data == null) return false;
+    final demoEndDate = createdAt.toDate().add(Duration(days: 10));
+    return DateTime.now().isAfter(demoEndDate);
+  }
 
-    final abonelik = data['abonelik'] ?? 'demo';
-    final kayitTarihi = data['kayitTarihi']?.toDate() ?? DateTime.now();
+  Future<String> getSubscriptionPlan() async {
+    final user = _auth.currentUser;
+    if (user == null) return 'demo';
 
-    // Eğer abonelik "demo" ise ve demo süresi dolduysa false döner
-    if (abonelik == 'demo') {
-      final bugun = DateTime.now();
-      final fark = bugun.difference(kayitTarihi).inDays;
+    final snapshot = await _firestore.collection('users').doc(user.uid).get();
+    if (!snapshot.exists) return 'demo';
 
-      if (fark > demoSuresi) return false;
+    final data = snapshot.data();
+    return data?['subscription'] ?? 'demo'; // 'starter', 'pro', or 'demo'
+  }
+
+  Future<void> redirectIfDemoExpired(Function onDemoExpired) async {
+    bool expired = await isDemoExpired();
+    String plan = await getSubscriptionPlan();
+
+    if (expired && plan == 'demo') {
+      onDemoExpired();
     }
-
-    return true;
   }
 }

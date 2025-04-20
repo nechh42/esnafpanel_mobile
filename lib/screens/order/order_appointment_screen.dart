@@ -1,128 +1,60 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class OrderAppointmentScreen extends StatefulWidget {
-  const OrderAppointmentScreen({Key? key}) : super(key: key);
-
-  @override
-  State<OrderAppointmentScreen> createState() => _OrderAppointmentScreenState();
-}
-
-class _OrderAppointmentScreenState extends State<OrderAppointmentScreen> {
-  final TextEditingController _typeController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  DateTime? _selectedDate;
-
-  Future<void> _addEntry() async {
-    if (_typeController.text.isEmpty ||
-        _descriptionController.text.isEmpty ||
-        _selectedDate == null)
-      return;
-
-    await FirebaseFirestore.instance.collection('order_appointments').add({
-      'type': _typeController.text,
-      'description': _descriptionController.text,
-      'date': _selectedDate!.toIso8601String(),
-      'createdAt': Timestamp.now(),
-    });
-
-    _typeController.clear();
-    _descriptionController.clear();
-    setState(() => _selectedDate = null);
-  }
-
-  Future<void> _deleteEntry(String docId) async {
-    await FirebaseFirestore.instance
-        .collection('order_appointments')
-        .doc(docId)
-        .delete();
-  }
-
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: now.subtract(const Duration(days: 0)),
-      lastDate: DateTime(now.year + 5),
-    );
-    if (picked != null) {
-      setState(() => _selectedDate = picked);
-    }
-  }
+class OrderAppointmentScreen extends StatelessWidget {
+  const OrderAppointmentScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sipariş / Randevu')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _typeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tür (Sipariş / Randevu)',
-                  ),
-                ),
-                TextField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Açıklama'),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      _selectedDate == null
-                          ? 'Tarih seçilmedi'
-                          : _selectedDate.toString().split(' ')[0],
-                    ),
-                    TextButton(
-                      onPressed: _pickDate,
-                      child: const Text('Tarih Seç'),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: _addEntry,
-                  child: const Text('Kaydet'),
-                ),
-              ],
-            ),
-          ),
-          const Divider(),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance
-                      .collection('order_appointments')
-                      .orderBy('createdAt', descending: true)
-                      .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData)
-                  return const Center(child: CircularProgressIndicator());
-                final docs = snapshot.data!.docs;
-                return ListView.builder(
-                  itemCount: docs.length,
-                  itemBuilder: (context, index) {
-                    final data = docs[index];
-                    return ListTile(
-                      title: Text(data['type']),
-                      subtitle: Text(
-                        "${data['description']}\n${data['date'].toString().split('T')[0]}",
+      appBar: AppBar(title: const Text("Sipariş & Randevu"), centerTitle: true),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                // Yeni sipariş ekleme işlemi
+                showDialog(
+                  context: context,
+                  builder:
+                      (_) => AlertDialog(
+                        title: const Text("Yeni Sipariş"),
+                        content: const Text(
+                          "Yeni sipariş ekleme ekranı burada açılır.",
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Kapat"),
+                          ),
+                        ],
                       ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () => _deleteEntry(data.id),
-                      ),
-                    );
-                  },
                 );
               },
+              child: const Text("Yeni Sipariş Oluştur"),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            ListTile(
+              leading: const Icon(Icons.event),
+              title: const Text("Randevu 1 - 22 Nisan 2025"),
+              subtitle: const Text("10:00 - 10:30 • Ahmet Yılmaz"),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                // Randevu detaylarına git
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.event),
+              title: const Text("Sipariş 2 - 23 Nisan 2025"),
+              subtitle: const Text("Kahve siparişi - 2 adet Latte"),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                // Sipariş detaylarına git
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

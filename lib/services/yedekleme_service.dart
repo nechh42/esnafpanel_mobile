@@ -2,38 +2,70 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class YedeklemeService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> yedekleVerileri(Map<String, dynamic> veriler) async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return;
-
+  /// Verileri Firestore'a yedekler
+  Future<void> yedekleVeri(
+    String koleksiyonAdi,
+    Map<String, dynamic> veri,
+  ) async {
     try {
-      await _firestore.collection('yedeklemeler').doc(uid).set({
-        'data': veriler,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-      print('✅ Veriler yedeklendi.');
+      final uid = _auth.currentUser?.uid;
+      if (uid == null) throw Exception("Kullanıcı bulunamadı");
+
+      await _firestore
+          .collection('yedekler')
+          .doc(uid)
+          .collection(koleksiyonAdi)
+          .add(veri);
+
+      print("Veri yedeklendi: $veri");
     } catch (e) {
-      print('❌ Yedekleme hatası: $e');
+      print("Yedekleme hatası: $e");
     }
   }
 
-  Future<Map<String, dynamic>?> geriYukleVeriler() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return null;
-
+  /// Firestore'dan yedekleri geri yükler
+  Future<List<Map<String, dynamic>>> geriYukleVeri(String koleksiyonAdi) async {
     try {
-      final snapshot =
-          await _firestore.collection('yedeklemeler').doc(uid).get();
-      if (snapshot.exists) {
-        return snapshot.data()?['data'] as Map<String, dynamic>?;
-      }
-    } catch (e) {
-      print('❌ Geri yükleme hatası: $e');
-    }
+      final uid = _auth.currentUser?.uid;
+      if (uid == null) throw Exception("Kullanıcı bulunamadı");
 
-    return null;
+      final snapshot =
+          await _firestore
+              .collection('yedekler')
+              .doc(uid)
+              .collection(koleksiyonAdi)
+              .get();
+
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print("Geri yükleme hatası: $e");
+      return [];
+    }
+  }
+
+  /// Tüm yedekleri siler (opsiyonel)
+  Future<void> yedekleriSil(String koleksiyonAdi) async {
+    try {
+      final uid = _auth.currentUser?.uid;
+      if (uid == null) throw Exception("Kullanıcı bulunamadı");
+
+      final snapshot =
+          await _firestore
+              .collection('yedekler')
+              .doc(uid)
+              .collection(koleksiyonAdi)
+              .get();
+
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      print("Yedekler silindi.");
+    } catch (e) {
+      print("Silme hatası: $e");
+    }
   }
 }
