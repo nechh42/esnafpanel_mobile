@@ -6,7 +6,7 @@ import 'package:esnafpanel_mobile/screens/auth/register_continue_screen.dart';
 import 'package:esnafpanel_mobile/screens/main_panel/main_panel_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
