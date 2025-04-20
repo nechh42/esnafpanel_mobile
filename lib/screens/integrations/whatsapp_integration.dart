@@ -2,30 +2,35 @@
 
 import 'package:flutter/material.dart';
 
-class WhatsAppIntegrationScreen extends StatelessWidget {
-  const WhatsAppIntegrationScreen({super.key});
+class WhatsappIntegrationScreen extends StatelessWidget {
+  const WhatsappIntegrationScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("WhatsApp Entegrasyonu")),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
+      appBar: AppBar(title: const Text('WhatsApp Entegrasyonu')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              "WhatsApp Entegrasyonu",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const Icon(Icons.message, size: 80, color: Colors.green),
+            const SizedBox(height: 24),
+            const Text(
+              'WhatsApp bağlantısını kurmak için aşağıdaki adımları takip edin.',
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
             ),
-            SizedBox(height: 10),
-            Text(
-              "Müşterilerinizle doğrudan WhatsApp üzerinden iletişime geçin. Bu ekran üzerinden numara bağlantısı ve otomatik mesaj sistemlerini yönetebilirsiniz.",
-            ),
-            SizedBox(height: 20),
-            Text(
-              "🔒 Bu özellik sadece Starter ve Pro paketlerde aktiftir.",
-              style: TextStyle(color: Colors.green),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                // Bu kısımda WhatsApp API bağlantısı kurulabilir.
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Henüz entegre edilmedi.')),
+                );
+              },
+              icon: const Icon(Icons.link),
+              label: const Text('Bağlantıyı Başlat'),
             ),
           ],
         ),
