@@ -1,46 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:esnafpanel_mobile/services/yedekleme_service.dart';
+import '../../services/yedekleme_service.dart';
 
 class YedeklemeScreen extends StatelessWidget {
-  const YedeklemeScreen({super.key});
+  const YedeklemeScreen({Key? key}) : super(key: key);
+
+  void _yedekAl(BuildContext context) async {
+    final success = await YedeklemeService().yedekAl();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? 'Yedek başarıyla alındı!' : 'Yedek alınamadı.'),
+      ),
+    );
+  }
+
+  void _yedekYukle(BuildContext context) async {
+    final success = await YedeklemeService().yedekYukle();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success ? 'Yedek başarıyla yüklendi!' : 'Yedek yüklenemedi.',
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Yedekleme İşlemleri"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Yedekleme')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              "Verilerinizi korumak için düzenli olarak yedek alabilirsiniz.",
+              'Verilerinizi güvenle yedekleyin ve gerektiğinde geri yükleyin.',
               style: TextStyle(fontSize: 16),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
             ElevatedButton.icon(
-              onPressed: () {
-                YedeklemeService.yedekAl();
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text("Yedek alındı")));
-              },
+              onPressed: () => _yedekAl(context),
               icon: const Icon(Icons.backup),
-              label: const Text("Yedek Al"),
+              label: const Text('Yedek Al'),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () {
-                YedeklemeService.yedektenYukle();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Yedek geri yüklendi")),
-                );
-              },
+              onPressed: () => _yedekYukle(context),
               icon: const Icon(Icons.restore),
-              label: const Text("Yedekten Yükle"),
+              label: const Text('Yedeği Geri Yükle'),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             ),
           ],

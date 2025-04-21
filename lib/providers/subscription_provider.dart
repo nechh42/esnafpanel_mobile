@@ -1,57 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/business_model.dart';
+
+class SubscriptionProduct {
+  final String id;
+  final String title;
+  final String description;
+  final String price;
+
+  SubscriptionProduct({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.price,
+  });
+}
 
 class SubscriptionProvider with ChangeNotifier {
-  bool _isSubscribed = false;
-  String? _planType;
+  List<SubscriptionProduct> _products = [
+    SubscriptionProduct(
+      id: 'basic',
+      title: 'Başlangıç Paketi',
+      description: 'Temel özellikler',
+      price: '₺19,99',
+    ),
+    SubscriptionProduct(
+      id: 'pro',
+      title: 'Pro Paket',
+      description: 'Tüm özellikler',
+      price: '₺49,99',
+    ),
+  ];
 
-  bool get isSubscribed => _isSubscribed;
-  String? get planType => _planType;
+  List<SubscriptionProduct> get products => _products;
 
-  Future<void> checkSubscriptionStatus(String userId) async {
-    try {
-      final doc =
-          await FirebaseFirestore.instance
-              .collection('subscriptions')
-              .doc(userId)
-              .get();
-
-      if (doc.exists) {
-        _isSubscribed = doc['isSubscribed'] ?? false;
-        _planType = doc['planType'];
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint("Subscription check failed: $e");
-    }
-  }
-
-  Future<void> updateSubscriptionStatus(
-    String userId,
-    bool status,
-    String plan,
-  ) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('subscriptions')
-          .doc(userId)
-          .set({
-            'isSubscribed': status,
-            'planType': plan,
-            'timestamp': FieldValue.serverTimestamp(),
-          });
-      _isSubscribed = status;
-      _planType = plan;
-      notifyListeners();
-    } catch (e) {
-      debugPrint("Subscription update failed: $e");
-    }
-  }
-
-  void clear() {
-    _isSubscribed = false;
-    _planType = null;
+  void buySubscription(SubscriptionProduct product) {
+    // Gerçek satın alma işlemi burada olur
+    print('Satın alındı: ${product.id}');
     notifyListeners();
   }
 }

@@ -33,7 +33,7 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('Karanlık Tema'),
             value: themeProvider.isDarkMode,
             onChanged: (value) {
-              themeProvider.toggleTheme();
+              themeProvider.toggleTheme(value);
             },
           ),
         ],

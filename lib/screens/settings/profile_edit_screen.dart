@@ -1,7 +1,6 @@
-// lib/screens/settings/profile_edit_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../models/business_model.dart';
 import '../../../providers/business_provider.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -12,47 +11,104 @@ class ProfileEditScreen extends StatefulWidget {
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  final TextEditingController _nameController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nameController;
+  late TextEditingController _ownerNameController;
+  late bool _isPopular;
 
   @override
   void initState() {
     super.initState();
     final business =
         Provider.of<BusinessProvider>(context, listen: false).selectedBusiness;
-    _nameController.text = business?.ownerName ?? "";
+
+    _nameController = TextEditingController(text: business?.name ?? '');
+    _ownerNameController = TextEditingController(
+      text: business?.ownerName ?? '',
+    );
+    _isPopular = business?.isPopular ?? false;
   }
 
-  void _saveProfile() {
-    final provider = Provider.of<BusinessProvider>(context, listen: false);
-    provider.updateOwnerName(_nameController.text.trim());
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profil bilgileri kaydedildi")),
-    );
-    Navigator.pop(context);
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _ownerNameController.dispose();
+    super.dispose();
+  }
+
+  void _saveChanges() {
+    if (_formKey.currentState!.validate()) {
+      final updatedBusiness = BusinessModel(
+        id:
+            Provider.of<BusinessProvider>(
+              context,
+              listen: false,
+            ).selectedBusiness?.id ??
+            '',
+        name: _nameController.text.trim(),
+        ownerName: _ownerNameController.text.trim(),
+        isPopular: _isPopular,
+      );
+
+      Provider.of<BusinessProvider>(
+        context,
+        listen: false,
+      ).updateBusiness(updatedBusiness);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Profil güncellendi')));
+
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Profil Düzenle")),
+      appBar: AppBar(title: const Text('Profil Düzenle')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: "Ad Soyad",
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'İşletme Adı'),
+                validator:
+                    (value) =>
+                        value == null || value.isEmpty
+                            ? 'İşletme adı gerekli'
+                            : null,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _saveProfile,
-              icon: const Icon(Icons.save),
-              label: const Text("Kaydet"),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _ownerNameController,
+                decoration: const InputDecoration(labelText: 'Sahip Adı'),
+                validator:
+                    (value) =>
+                        value == null || value.isEmpty
+                            ? 'Sahip adı gerekli'
+                            : null,
+              ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Popüler İşletme'),
+                value: _isPopular,
+                onChanged: (value) {
+                  setState(() {
+                    _isPopular = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _saveChanges,
+                child: const Text('Kaydet'),
+              ),
+            ],
+          ),
         ),
       ),
     );

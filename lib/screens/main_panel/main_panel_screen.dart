@@ -1,98 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:esnafpanel_mobile/providers/business_provider.dart';
+
+import 'package:esnafpanel_mobile/screens/notifications/notifications_screen.dart';
+import 'package:esnafpanel_mobile/screens/settings/settings_screen.dart';
+import 'package:esnafpanel_mobile/screens/payments/payment_screen.dart';
+import 'package:esnafpanel_mobile/screens/customers/customer_management_screen.dart';
+import 'package:esnafpanel_mobile/screens/orders/order_appointment_screen.dart';
+import 'package:esnafpanel_mobile/screens/reports/report_screen.dart';
+import 'package:esnafpanel_mobile/screens/security/security_screen.dart';
+import 'package:esnafpanel_mobile/screens/help/help_screen.dart';
+import 'package:esnafpanel_mobile/screens/backup/yedekleme_screen.dart';
 
 class MainPanelScreen extends StatelessWidget {
   const MainPanelScreen({super.key});
 
-  void navigateTo(BuildContext context, String route) {
-    Navigator.pushNamed(context, route);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final List<_PanelItem> panelItems = [
-      _PanelItem(
-        icon: Icons.notifications,
-        title: 'Bildirimler',
-        route: '/notifications',
-      ),
-      _PanelItem(icon: Icons.settings, title: 'Ayarlar', route: '/settings'),
-      _PanelItem(icon: Icons.lock, title: 'Güvenlik', route: '/security'),
-      _PanelItem(icon: Icons.help, title: 'Yardım', route: '/help'),
-      _PanelItem(
-        icon: Icons.check_circle_outline,
-        title: 'Abonelik Kontrol',
-        route: '/abone_kontrol',
-      ),
-      _PanelItem(icon: Icons.backup, title: 'Yedekleme', route: '/yedekleme'),
-      _PanelItem(
-        icon: Icons.camera_alt,
-        title: 'Instagram',
-        route: '/instagram',
-      ),
-      _PanelItem(icon: Icons.message, title: 'WhatsApp', route: '/whatsapp'),
-      _PanelItem(icon: Icons.bar_chart, title: 'Raporlama', route: '/report'),
-      _PanelItem(icon: Icons.people, title: 'Müşteriler', route: '/customers'),
-      _PanelItem(
-        icon: Icons.shopping_cart,
-        title: 'Sipariş/Randevu',
-        route: '/orders',
-      ),
-      _PanelItem(
-        icon: Icons.payment,
-        title: 'Ödeme',
-        route: '/google_play_billing',
-      ),
-      _PanelItem(
-        icon: Icons.color_lens,
-        title: 'Tema',
-        route: '/theme_customizer',
-      ),
-    ];
+    final business = Provider.of<BusinessProvider>(context).selectedBusiness;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('EsnafPanel'), centerTitle: true),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          children:
-              panelItems.map((item) {
-                return GestureDetector(
-                  onTap: () => navigateTo(context, item.route),
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(item.icon, size: 42),
-                        const SizedBox(height: 10),
-                        Text(
-                          item.title,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-        ),
+      appBar: AppBar(
+        title: Text(business != null ? "${business.name} Paneli" : "Ana Panel"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: ListView(
+        children: [
+          _buildTile(
+            context,
+            "Bildirimler",
+            Icons.notifications,
+            NotificationsScreen(),
+          ),
+          _buildTile(context, "Ödemeler", Icons.payment, PaymentScreen()),
+          _buildTile(
+            context,
+            "Müşteriler",
+            Icons.people,
+            CustomerManagementScreen(),
+          ),
+          _buildTile(
+            context,
+            "Randevular",
+            Icons.calendar_today,
+            OrderAppointmentScreen(),
+          ),
+          _buildTile(context, "Raporlar", Icons.bar_chart, ReportScreen()),
+          _buildTile(context, "Güvenlik", Icons.lock, SecurityScreen()),
+          _buildTile(context, "Yardım", Icons.help, HelpScreen()),
+          _buildTile(context, "Yedekleme", Icons.backup, YedeklemeScreen()),
+        ],
       ),
     );
   }
-}
 
-class _PanelItem {
-  final IconData icon;
-  final String title;
-  final String route;
-
-  _PanelItem({required this.icon, required this.title, required this.route});
+  Widget _buildTile(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Widget screen,
+  ) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+      },
+    );
+  }
 }

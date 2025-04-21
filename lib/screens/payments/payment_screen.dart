@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 import 'package:esnafpanel_mobile/providers/subscription_provider.dart';
 

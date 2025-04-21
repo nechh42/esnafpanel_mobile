@@ -1,51 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:esnafpanel_mobile/models/business_model.dart';
-import 'package:esnafpanel_mobile/providers/business_provider.dart';
-import 'package:esnafpanel_mobile/screens/business/business_dashboard_screen.dart';
+import '../../../models/business_model.dart';
+import '../../../providers/business_provider.dart';
+import '../../../screens/business/business_dashboard_screen.dart';
 
 class RegisterContinueScreen extends StatefulWidget {
-  const RegisterContinueScreen({super.key});
+  const RegisterContinueScreen({Key? key}) : super(key: key);
 
   @override
-  State<RegisterContinueScreen> createState() => _RegisterContinueScreenState();
+  _RegisterContinueScreenState createState() => _RegisterContinueScreenState();
 }
 
 class _RegisterContinueScreenState extends State<RegisterContinueScreen> {
-  final TextEditingController _nameController = TextEditingController();
   BusinessModel? _selectedBusiness;
-
   final List<BusinessModel> _businessList = [
     BusinessModel(id: '1', name: 'Kuaför Derya', isPopular: true),
     BusinessModel(id: '2', name: 'Güzellik Salonu Lavinya', isPopular: true),
-    BusinessModel(id: '3', name: 'Berber Mehmet'),
-    BusinessModel(id: '4', name: 'Ayşe\'nin Güzellik Merkezi'),
-    BusinessModel(id: '5', name: 'Barber Style'),
-    BusinessModel(id: '6', name: 'BeautyLife Estetik'),
-    BusinessModel(id: '7', name: 'Yusuf\'un Tıraş Salonu'),
-    BusinessModel(id: '8', name: 'Gül Beauty Studio'),
+    BusinessModel(id: '3', name: 'Berber Kemal', isPopular: false),
+    BusinessModel(id: '4', name: 'Erkek Kuaförü Star', isPopular: false),
+    BusinessModel(id: '5', name: 'Salon İnci', isPopular: false),
+    BusinessModel(
+      id: '6',
+      name: 'Cilt Bakım Merkezi Güzellik',
+      isPopular: false,
+    ),
+    BusinessModel(id: '7', name: 'Masaj Salonu Lotus', isPopular: false),
+    BusinessModel(id: '8', name: 'Bayan Kuaförü Melis', isPopular: false),
   ];
 
-  void _completeRegistration() {
-    final name = _nameController.text.trim();
-    if (name.isEmpty || _selectedBusiness == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lütfen adınızı girin ve bir işletme seçin.'),
-        ),
+  final TextEditingController _customBusinessController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    _customBusinessController.dispose();
+    super.dispose();
+  }
+
+  void _onContinue() {
+    if (_selectedBusiness != null) {
+      Provider.of<BusinessProvider>(
+        context,
+        listen: false,
+      ).setSelectedBusiness(_selectedBusiness!);
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const BusinessDashboardScreen()),
       );
-      return;
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Lütfen bir işletme seçin')));
     }
-
-    Provider.of<BusinessProvider>(
-      context,
-      listen: false,
-    ).setSelectedBusiness(_selectedBusiness!);
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const BusinessDashboardScreen()),
-    );
   }
 
   @override
@@ -53,53 +59,56 @@ class _RegisterContinueScreenState extends State<RegisterContinueScreen> {
     _businessList.sort((a, b) {
       if (a.isPopular && !b.isPopular) return -1;
       if (!a.isPopular && b.isPopular) return 1;
-      return a.name.compareTo(b.name);
+      return 0;
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Kaydı Tamamla')),
+      appBar: AppBar(title: const Text('İşletme Seçimi')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Ad Soyad'),
-            ),
-            const SizedBox(height: 20),
-            const Text('İşletme Seçimi'),
-            const SizedBox(height: 8),
+            const Text('Lütfen işletmenizi seçin:'),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: _businessList.length,
                 itemBuilder: (context, index) {
                   final business = _businessList[index];
-                  return ListTile(
+                  return RadioListTile<BusinessModel>(
                     title: Text(business.name),
-                    leading:
-                        business.isPopular
-                            ? const Icon(Icons.star, color: Colors.orange)
-                            : const Icon(Icons.store),
-                    trailing:
-                        _selectedBusiness == business
-                            ? const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                            )
-                            : null,
-                    onTap: () {
+                    value: business,
+                    groupValue: _selectedBusiness,
+                    onChanged: (value) {
                       setState(() {
-                        _selectedBusiness = business;
+                        _selectedBusiness = value;
                       });
                     },
                   );
                 },
               ),
             ),
-            const SizedBox(height: 12),
+            TextField(
+              controller: _customBusinessController,
+              decoration: const InputDecoration(
+                labelText: 'Diğer işletme (manuel giriş)',
+              ),
+              onSubmitted: (value) {
+                if (value.isNotEmpty) {
+                  final customBusiness = BusinessModel(
+                    name: value,
+                    isPopular: false,
+                  );
+                  setState(() {
+                    _selectedBusiness = customBusiness;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _completeRegistration,
-              child: const Text('Kaydı Tamamla'),
+              onPressed: _onContinue,
+              child: const Text('Devam Et'),
             ),
           ],
         ),
