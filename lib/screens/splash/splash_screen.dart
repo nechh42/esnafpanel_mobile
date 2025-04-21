@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:esnafpanel_mobile/services/auth_service.dart';
-import 'package:esnafpanel_mobile/screens/auth/login_screen.dart';
-import 'package:esnafpanel_mobile/screens/auth/register_continue_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:esnafpanel_mobile/screens/business/business_selection_screen.dart';
 import 'package:esnafpanel_mobile/screens/main_panel/main_panel_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,43 +12,47 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final AuthService _authService = AuthService();
-
   @override
   void initState() {
     super.initState();
-    _checkUser();
+    _checkUserStatus();
   }
 
-  Future<void> _checkUser() async {
-    await Future.delayed(const Duration(seconds: 2)); // Logo gösterimi için
-
-    User? user = FirebaseAuth.instance.currentUser;
-
+  Future<void> _checkUserStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-    } else {
-      bool isSetupDone = await _authService.isSetupCompleted(user.uid);
+      // Kullanıcı giriş yapmamış
+      Navigator.pushReplacementNamed(context, '/login');
+      return;
+    }
 
-      if (isSetupDone) {
+    final userDoc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+    if (userDoc.exists && userDoc.data()!.containsKey('businessId')) {
+      final businessId = userDoc['businessId'];
+      if (businessId != null && businessId.toString().isNotEmpty) {
+        // Kullanıcının işletme kaydı var
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const MainPanelScreen()),
         );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const RegisterContinueScreen()),
-        );
+        return;
       }
     }
+
+    // Kullanıcının işletme kaydı yok
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const BusinessSelectionScreen()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: FlutterLogo(size: 100)));
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

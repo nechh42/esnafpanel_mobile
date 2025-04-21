@@ -1,46 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:esnafpanel_mobile/models/business_model.dart';
 
 class BusinessProvider with ChangeNotifier {
-  String _businessName = '';
-  String _businessType = '';
-  String _address = '';
-  String _email = '';
-  String _phone = '';
+  List<BusinessModel> _businessList = [];
+  BusinessModel? _selectedBusiness;
+  String? _userName;
 
-  String get businessName => _businessName;
-  String get businessType => _businessType;
-  String get address => _address;
-  String get email => _email;
-  String get phone => _phone;
+  List<BusinessModel> get businessList => _businessList;
+  BusinessModel? get selectedBusiness => _selectedBusiness;
+  String? get userName => _userName;
 
-  void setBusinessInfo({
-    required String name,
-    required String type,
-    required String address,
-    required String email,
-    required String phone,
-  }) {
-    _businessName = name;
-    _businessType = type;
-    _address = address;
-    _email = email;
-    _phone = phone;
+  void setBusinessList(List<BusinessModel> list) {
+    _businessList = list;
     notifyListeners();
   }
 
-  void clearBusinessInfo() {
-    _businessName = '';
-    _businessType = '';
-    _address = '';
-    _email = '';
-    _phone = '';
+  void selectBusiness(BusinessModel business) {
+    _selectedBusiness = business;
     notifyListeners();
   }
 
-  bool get isComplete =>
-      _businessName.isNotEmpty &&
-      _businessType.isNotEmpty &&
-      _address.isNotEmpty &&
-      _email.isNotEmpty &&
-      _phone.isNotEmpty;
+  void selectBusinessByName(String name) {
+    final business = _businessList.firstWhere(
+      (b) => b.name == name,
+      orElse: () => _businessList.first,
+    );
+    _selectedBusiness = business;
+    notifyListeners();
+  }
+
+  void setUserName(String name) {
+    _userName = name;
+    notifyListeners();
+  }
+
+  void clearBusiness() {
+    _selectedBusiness = null;
+    notifyListeners();
+  }
 }

@@ -6,9 +6,13 @@ class ReportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Raporlama')),
+      appBar: AppBar(title: const Text("Raporlar"), centerTitle: true),
       body: const Center(
-        child: Text('Özet veya gelişmiş raporlar burada gösterilecek.'),
+        child: Text(
+          "Raporlama özelliği yakında eklenecek...",
+          style: TextStyle(fontSize: 18),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

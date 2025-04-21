@@ -1,55 +1,34 @@
+// lib/screens/settings/profile_edit_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/business_provider.dart';
 
 class ProfileEditScreen extends StatefulWidget {
-  const ProfileEditScreen({super.key});
+  const ProfileEditScreen({Key? key}) : super(key: key);
 
   @override
-  _ProfileEditScreenState createState() => _ProfileEditScreenState();
+  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
   @override
-  void dispose() {
-    _fullNameController.dispose();
-    _phoneNumberController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    final business =
+        Provider.of<BusinessProvider>(context, listen: false).selectedBusiness;
+    _nameController.text = business?.ownerName ?? "";
   }
 
-  Future<void> _saveProfile() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      await saveUserProfile(
-        uid: user.uid,
-        fullName: _fullNameController.text,
-        phoneNumber: _phoneNumberController.text,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil başarıyla güncellendi!')),
-      );
-    }
-  }
-
-  Future<void> saveUserProfile({
-    required String uid,
-    required String fullName,
-    required String phoneNumber,
-  }) async {
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(uid).set({
-        'fullName': fullName,
-        'phoneNumber': phoneNumber,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-      debugPrint('✅ Kullanıcı Firestore’a kaydedildi.');
-    } catch (e) {
-      debugPrint('❌ Firestore hata: \$e');
-    }
+  void _saveProfile() {
+    final provider = Provider.of<BusinessProvider>(context, listen: false);
+    provider.updateOwnerName(_nameController.text.trim());
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Profil bilgileri kaydedildi")),
+    );
+    Navigator.pop(context);
   }
 
   @override
@@ -61,19 +40,17 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         child: Column(
           children: [
             TextField(
-              controller: _fullNameController,
-              decoration: const InputDecoration(labelText: 'Ad Soyad'),
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: "Ad Soyad",
+                border: OutlineInputBorder(),
+              ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _phoneNumberController,
-              decoration: const InputDecoration(labelText: 'Telefon Numarası'),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
               onPressed: _saveProfile,
-              child: const Text('Kaydet'),
+              icon: const Icon(Icons.save),
+              label: const Text("Kaydet"),
             ),
           ],
         ),

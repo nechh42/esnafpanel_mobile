@@ -6,10 +6,8 @@ class ThemeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tema Ayarları')),
-      body: const Center(
-        child: Text('Açık/Koyu tema burada değiştirilebilir.'),
-      ),
+      appBar: AppBar(title: const Text("Tema")),
+      body: const Center(child: Text("Tema seçenekleri burada olacak")),
     );
   }
 }

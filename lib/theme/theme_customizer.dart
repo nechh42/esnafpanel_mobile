@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ThemeCustomizerScreen extends StatelessWidget {
-  const ThemeCustomizerScreen({super.key});
+class ThemeCustomizer extends StatelessWidget {
+  const ThemeCustomizer({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tema Özelleştir')),
-      body: const Center(
-        child: Text('Pro kullanıcılar için renk düzeni ve özelleştirme.'),
-      ),
+      appBar: AppBar(title: const Text('Tema Seçimi')),
+      body: Center(child: Text('Tema ayarları burada yapılacak.')),
     );
   }
 }

@@ -1,19 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/business_model.dart';
 
 class AuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<bool> isSetupCompleted(String uid) async {
+  Future<void> createBusiness(String userId, BusinessModel business) async {
     try {
-      final doc = await _firestore.collection('users').doc(uid).get();
-      if (doc.exists) {
-        final data = doc.data();
-        return data != null && data['setupCompleted'] == true;
-      }
-      return false;
+      final docRef = await _firestore
+          .collection('businesses')
+          .add(business.toMap());
+
+      // Kullanıcının belgesine seçili işletme ID’sini kaydet:
+      await _firestore.collection('users').doc(userId).update({
+        'selectedBusinessId': docRef.id,
+      });
     } catch (e) {
-      print('Firestore check error: $e');
-      return false;
+      throw Exception("İşletme oluşturulamadı: $e");
     }
   }
 }
