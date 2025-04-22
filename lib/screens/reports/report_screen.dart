@@ -1,6 +1,7 @@
+// lib/screens/reports/report_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/business_provider.dart';
+import 'package:esnafpanel_mobile/providers/business_provider.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -11,51 +12,28 @@ class ReportScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Raporlar')),
-      body:
-          business == null
-              ? const Center(child: Text('Lütfen bir işletme seçin'))
-              : Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ListView(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child:
+            business == null
+                ? const Text('İşletme bilgisi bulunamadı.')
+                : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'İşletme: ${business.name}',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.headline6,
                     ),
-                    const SizedBox(height: 16),
-                    _buildReportTile('Toplam Sipariş', '128'),
-                    _buildReportTile('Toplam Gelir', '₺15.200'),
-                    _buildReportTile('Yeni Müşteri', '34'),
-                    _buildReportTile(
-                      'Popülerlik Durumu',
-                      business.isPopular ? 'Popüler' : 'Standart',
+                    const SizedBox(height: 8),
+                    Text('Sahibi: ${business.ownerName}'),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Durum: ${business.isPopular ? 'Popüler' : 'Standart'}',
                     ),
-                    const SizedBox(height: 32),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Rapor dışa aktarıldı')),
-                        );
-                      },
-                      icon: const Icon(Icons.download),
-                      label: const Text('Raporu Dışa Aktar'),
-                    ),
+                    const SizedBox(height: 24),
+                    const Text('Buraya işletmeyle ilgili raporlar gelecek...'),
                   ],
                 ),
-              ),
-    );
-  }
-
-  Widget _buildReportTile(String title, String value) {
-    return Card(
-      elevation: 3,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        title: Text(title),
-        trailing: Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
       ),
     );
   }

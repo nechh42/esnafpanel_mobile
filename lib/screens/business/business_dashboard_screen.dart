@@ -1,7 +1,7 @@
+// 📄 lib/screens/business/business_dashboard_screen.dart (girişte null kontrolü)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../../providers/business_provider.dart';
+import 'package:esnafpanel_mobile/providers/business_provider.dart';
 
 class BusinessDashboardScreen extends StatelessWidget {
   const BusinessDashboardScreen({super.key});
@@ -10,44 +10,13 @@ class BusinessDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final business = Provider.of<BusinessProvider>(context).selectedBusiness;
 
+    if (business == null) {
+      return const Scaffold(body: Center(child: Text("İşletme seçilmedi.")));
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text("İşletme Paneli"), centerTitle: true),
-      body:
-          business == null
-              ? const Center(child: Text("İşletme seçilmedi."))
-              : Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      business.name,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "ID: ${business.id}",
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    if (business.ownerName != null &&
-                        business.ownerName!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        "İşletme Sahibi: ${business.ownerName!}",
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                    const Spacer(),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.logout),
-                      label: const Text("Çıkış Yap"),
-                    ),
-                  ],
-                ),
-              ),
+      appBar: AppBar(title: Text(business.name)),
+      body: Center(child: Text("Hoş geldiniz, ${business.ownerName}")),
     );
   }
 }

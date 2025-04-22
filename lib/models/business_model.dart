@@ -1,31 +1,27 @@
+// lib/models/business_model.dart
 class BusinessModel {
   final String id;
   final String name;
+  final String ownerName;
   final bool isPopular;
-  final String? ownerName;
 
   BusinessModel({
     required this.id,
     required this.name,
+    required this.ownerName,
     this.isPopular = false,
-    this.ownerName,
   });
 
-  factory BusinessModel.fromMap(Map<String, dynamic> data) {
+  factory BusinessModel.fromMap(Map<String, dynamic> data, String documentId) {
     return BusinessModel(
-      id: data['id'] ?? '',
+      id: documentId,
       name: data['name'] ?? '',
+      ownerName: data['ownerName'] ?? '',
       isPopular: data['isPopular'] ?? false,
-      ownerName: data['ownerName'],
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'isPopular': isPopular,
-      'ownerName': ownerName,
-    };
+    return {'name': name, 'ownerName': ownerName, 'isPopular': isPopular};
   }
 }

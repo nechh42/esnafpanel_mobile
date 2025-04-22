@@ -17,7 +17,7 @@ class CustomerManagementScreen extends StatelessWidget {
               ? const Center(child: Text('Lütfen önce bir işletme seçin.'))
               : Center(
                 child: Text(
-                  'İşletme: ${business.businessName} için müşteri yönetimi ekranı',
+                  'İşletme: ${business.name} için müşteri yönetimi ekranı',
                 ),
               ),
     );

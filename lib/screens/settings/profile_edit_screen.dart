@@ -1,7 +1,8 @@
+// lib/screens/settings/profile_edit_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../models/business_model.dart';
-import '../../../providers/business_provider.dart';
+import 'package:esnafpanel_mobile/models/business_model.dart';
+import 'package:esnafpanel_mobile/providers/business_provider.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({Key? key}) : super(key: key);
@@ -12,89 +13,54 @@ class ProfileEditScreen extends StatefulWidget {
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _ownerNameController;
-  late bool _isPopular;
+  String? _name;
+  String? _ownerName;
+  bool _isPopular = false;
 
   @override
   void initState() {
     super.initState();
     final business =
         Provider.of<BusinessProvider>(context, listen: false).selectedBusiness;
-
-    _nameController = TextEditingController(text: business?.name ?? '');
-    _ownerNameController = TextEditingController(
-      text: business?.ownerName ?? '',
-    );
+    _name = business?.name;
+    _ownerName = business?.ownerName;
     _isPopular = business?.isPopular ?? false;
   }
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _ownerNameController.dispose();
-    super.dispose();
-  }
-
-  void _saveChanges() {
-    if (_formKey.currentState!.validate()) {
-      final updatedBusiness = BusinessModel(
-        id:
-            Provider.of<BusinessProvider>(
-              context,
-              listen: false,
-            ).selectedBusiness?.id ??
-            '',
-        name: _nameController.text.trim(),
-        ownerName: _ownerNameController.text.trim(),
-        isPopular: _isPopular,
-      );
-
-      Provider.of<BusinessProvider>(
-        context,
-        listen: false,
-      ).updateBusiness(updatedBusiness);
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Profil güncellendi')));
-
-      Navigator.pop(context);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<BusinessProvider>(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Profil Düzenle')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
             children: [
               TextFormField(
-                controller: _nameController,
+                initialValue: _name,
                 decoration: const InputDecoration(labelText: 'İşletme Adı'),
                 validator:
                     (value) =>
                         value == null || value.isEmpty
-                            ? 'İşletme adı gerekli'
+                            ? 'Boş bırakılamaz'
                             : null,
+                onSaved: (value) => _name = value,
               ),
-              const SizedBox(height: 16),
               TextFormField(
-                controller: _ownerNameController,
+                initialValue: _ownerName,
                 decoration: const InputDecoration(labelText: 'Sahip Adı'),
                 validator:
                     (value) =>
                         value == null || value.isEmpty
-                            ? 'Sahip adı gerekli'
+                            ? 'Boş bırakılamaz'
                             : null,
+                onSaved: (value) => _ownerName = value,
               ),
-              const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('Popüler İşletme'),
+                title: const Text('Popüler olarak işaretle'),
                 value: _isPopular,
                 onChanged: (value) {
                   setState(() {
@@ -102,9 +68,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   });
                 },
               ),
-              const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _saveChanges,
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    final updatedBusiness = BusinessModel(
+                      id: provider.selectedBusiness!.id,
+                      name: _name!,
+                      ownerName: _ownerName!,
+                      isPopular: _isPopular,
+                    );
+                    provider.updateBusiness(updatedBusiness);
+                    Navigator.pop(context);
+                  }
+                },
                 child: const Text('Kaydet'),
               ),
             ],
